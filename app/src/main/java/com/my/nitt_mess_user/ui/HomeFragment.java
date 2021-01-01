@@ -122,17 +122,17 @@ public class HomeFragment extends Fragment {
         mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
-                    for(int i=0;i<messList.size();i++) {
+                if (dataSnapshot.exists()) {
+                    for (int i = 0; i < messList.size(); i++) {
                         Mess mess = messList.get(i);
-                        if(!IsMessAllocate) {
+                        if (!IsMessAllocate) {
                             int Count = Integer.parseInt(dataSnapshot.child(messList.get(i).getId()).child("Total").getValue().toString());
                             int Allocate = Integer.parseInt(dataSnapshot.child(messList.get(i).getId()).child("Allocate").getValue().toString());
                             if (Count > Allocate) {
                                 IsMessAllocate = true;
-                                String Key = Year+"/"+Month;
+                                String Key = Year + "/" + Month;
                                 String RollNo = FUser.getEmail().split("@")[0];
-                                FirebaseDatabase.getInstance().getReference("Data/Mess").child(mess.getId()).child("Allocate").setValue(Allocate+1);
+                                FirebaseDatabase.getInstance().getReference("Data/Mess").child(mess.getId()).child("Allocate").setValue(Allocate + 1);
                                 FirebaseDatabase.getInstance().getReference("Data/AllocatedMessHistory").child(mess.getId()).child(Key).child(RollNo).setValue(FUser.getDisplayName());
                                 FirebaseDatabase.getInstance().getReference("Data/User").child(RollNo).child("AllocateMess").child(Key).setValue(mess.getId());
                                 layoutAllocatedMess.setVisibility(View.VISIBLE);
@@ -144,6 +144,7 @@ public class HomeFragment extends Fragment {
                     }
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
@@ -151,7 +152,7 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void getUserGender(){
+    private void getUserGender() {
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setTitle("Loading...");
         progressDialog.show();
@@ -160,16 +161,16 @@ public class HomeFragment extends Fragment {
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
+                if (dataSnapshot.exists()) {
                     Gender = dataSnapshot.getValue(String.class);
                     getUserData();
-                }
-                else {
+                } else {
                     startActivity(new Intent(getContext(), InvalidUserActivity.class));
                     getActivity().finish();
                     progressDialog.dismiss();
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 progressDialog.dismiss();
@@ -179,19 +180,18 @@ public class HomeFragment extends Fragment {
 
     private void getUserData() {
         String RollNo = FUser.getEmail().split("@")[0];
-        String Key = Year+"/"+Month;
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("Data/User").child(RollNo).child("AllocateMess/"+Key);
+        String Key = Year + "/" + Month;
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("Data/User").child(RollNo).child("AllocateMess/" + Key);
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
+                if (dataSnapshot.exists()) {
                     String MessId = dataSnapshot.getValue().toString();
                     IsMessAllocate = true;
                     layoutAllocatedMess.setVisibility(View.VISIBLE);
                     layoutNotAllocatedMess.setVisibility(View.GONE);
                     getMessData(MessId);
-                }
-                else {
+                } else {
                     getAllMessData();
                     layoutAllocatedMess.setVisibility(View.GONE);
                     layoutNotAllocatedMess.setVisibility(View.VISIBLE);
@@ -210,10 +210,10 @@ public class HomeFragment extends Fragment {
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
+                if (dataSnapshot.exists()) {
                     messList = new ArrayList<Mess>();
                     for (final DataSnapshot mess : dataSnapshot.getChildren()) {
-                        if(mess.child("Type").getValue().equals(Gender) || mess.child("Type").getValue().equals("Unisex")) {
+                        if (mess.child("Type").getValue().equals(Gender) || mess.child("Type").getValue().equals("Unisex")) {
                             Dictionary Menu = new Hashtable();
                             for (final DataSnapshot menu : mess.child("Menu").getChildren()) {
                                 Menu.put(menu.getKey(), new MessMenu(
@@ -235,7 +235,7 @@ public class HomeFragment extends Fragment {
                                 messList.add(M);
                         }
                     }
-                    if(MyMess!=null) {
+                    if (MyMess != null) {
                         MessMenu menu = (MessMenu) MyMess.getMenu().get(weekDay);
                         if (menu != null)
                             TodayMenu.setText(menu.getDinner());
@@ -245,6 +245,7 @@ public class HomeFragment extends Fragment {
                 recyclerView.setAdapter(recyclerAdapter);
                 progressDialog.dismiss();
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 progressDialog.dismiss();
@@ -257,10 +258,10 @@ public class HomeFragment extends Fragment {
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot mess) {
-                if(mess.exists()) {
+                if (mess.exists()) {
                     Dictionary Menu = new Hashtable();
-                    for(final DataSnapshot menu : mess.child("Menu").getChildren()) {
-                        Menu.put(menu.getKey() , new MessMenu(
+                    for (final DataSnapshot menu : mess.child("Menu").getChildren()) {
+                        Menu.put(menu.getKey(), new MessMenu(
                                 menu.getKey(),
                                 menu.child("Breakfast").getValue().toString(),
                                 menu.child("Lunch").getValue().toString(),
@@ -278,6 +279,7 @@ public class HomeFragment extends Fragment {
                     isOnLeave(MyMess.getId());
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 progressDialog.dismiss();
@@ -290,22 +292,22 @@ public class HomeFragment extends Fragment {
         int Year = today.get(Calendar.YEAR);
         int Month = today.get(Calendar.MONTH);
         int Day = today.get(Calendar.DAY_OF_MONTH);
-        String Key = Year+"/"+Month+"/"+Day;
+        String Key = Year + "/" + Month + "/" + Day;
         String RollNo = FUser.getEmail().split("@")[0];
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("Data/StudentOnLeave").child(MessId).child(Key).child(RollNo);
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
+                if (dataSnapshot.exists()) {
                     IsOnLeave = true;
                     ImageQRCode.setVisibility(View.INVISIBLE);
                     textViewData.setText("On Leave");
                     progressDialog.dismiss();
-                }
-                else {
+                } else {
                     getLastTakenFood(MyMess.getId());
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 progressDialog.dismiss();
@@ -319,59 +321,69 @@ public class HomeFragment extends Fragment {
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
+                if (dataSnapshot.exists()) {
                     lastTakenFood = new LastTakenFood(
                             dataSnapshot.child("type").getValue(String.class),
                             dataSnapshot.child("date").getValue(String.class),
                             dataSnapshot.child("time").getValue(String.class),
                             dataSnapshot.child("feedback").getValue(Boolean.class)
                     );
-                    if (lastTakenFood.isFeedBack())
-                        generateQrCode(QrCodeData(MessId));
-                    else
-                        textViewData.setText("Please Complete Your Previous Food Feedback");
-                }
-                else {
-                    MessMenu menu = (MessMenu) MyMess.getMenu().get(weekDay);
-                    if (menu != null) {
-                        if(Hours<11){
-                            if(lastTakenFood != null && lastTakenFood.isBreakfast() && lastTakenFood.isToday()) {
+                    if (lastTakenFood.isFeedBack()) {
+                        MessMenu menu = (MessMenu) MyMess.getMenu().get(weekDay);
+                        if (Hours < 11) {
+                            if (lastTakenFood.isBreakfast() && lastTakenFood.isToday()) {
                                 ImageQRCode.setVisibility(View.INVISIBLE);
-                                textViewData.setText("Done at Time : "+lastTakenFood.getTime());
+                                textViewData.setText("Done at Time : " + lastTakenFood.getTime());
                             }
                             FoodType.setText("Breakfast");
                             TodayMenu.setText(menu.getBreakfast());
-                        }
-                        else if(Hours<15){
-                            if(lastTakenFood != null && lastTakenFood.isLunch() && lastTakenFood.isToday()) {
+                        } else if (Hours < 15) {
+                            if (lastTakenFood.isLunch() && lastTakenFood.isToday()) {
                                 ImageQRCode.setVisibility(View.INVISIBLE);
-                                textViewData.setText("Done at Time : "+lastTakenFood.getTime());
+                                textViewData.setText("Done at Time : " + lastTakenFood.getTime());
                             }
                             FoodType.setText("Lunch");
                             TodayMenu.setText(menu.getLunch());
-                        }
-                        else if(Hours<18){
-                            if(lastTakenFood != null && lastTakenFood.isSnack() && lastTakenFood.isToday()) {
+                        } else if (Hours < 18) {
+                            if (lastTakenFood.isSnack() && lastTakenFood.isToday()) {
                                 ImageQRCode.setVisibility(View.INVISIBLE);
-                                textViewData.setText("Done at Time : "+lastTakenFood.getTime());
+                                textViewData.setText("Done at Time : " + lastTakenFood.getTime());
                             }
                             FoodType.setText("Snack");
                             TodayMenu.setText(menu.getSnack());
-                        }
-                        else {
-                            if(lastTakenFood != null && lastTakenFood.isDinner() && lastTakenFood.isToday()) {
+                        } else {
+                            if (lastTakenFood.isDinner() && lastTakenFood.isToday()) {
                                 ImageQRCode.setVisibility(View.INVISIBLE);
-                                textViewData.setText("Done at Time : "+lastTakenFood.getTime());
+                                textViewData.setText("Done at Time : " + lastTakenFood.getTime());
                             }
                             FoodType.setText("Dinner");
                             TodayMenu.setText(menu.getDinner());
                         }
+                        generateQrCode(QrCodeData(MessId));
+                        progressDialog.dismiss();
+                    } else
+                        textViewData.setText("Please Complete Your Previous Food Feedback");
+                } else {
+                    MessMenu menu = (MessMenu) MyMess.getMenu().get(weekDay);
+                    if (Hours < 11) {
+                        FoodType.setText("Breakfast");
+                        TodayMenu.setText(menu.getBreakfast());
+                    } else if (Hours < 15) {
+                        FoodType.setText("Lunch");
+                        TodayMenu.setText(menu.getLunch());
+                    } else if (Hours < 18) {
+                        FoodType.setText("Snack");
+                        TodayMenu.setText(menu.getSnack());
+                    } else {
+                        FoodType.setText("Dinner");
+                        TodayMenu.setText(menu.getDinner());
                     }
                     progressDialog.dismiss();
                     generateQrCode(QrCodeData(MessId));
                 }
                 progressDialog.dismiss();
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 progressDialog.dismiss();
@@ -379,26 +391,23 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private String QrCodeData(String MessId){
-        String Food ;
-        if(Hours<11){
+    private String QrCodeData(String MessId) {
+        String Food;
+        if (Hours < 11) {
             Food = "Breakfast";
-        }
-        else if(Hours<15){
+        } else if (Hours < 15) {
             Food = "Lunch";
-        }
-        else if(Hours<18){
+        } else if (Hours < 18) {
             Food = "Snack";
-        }
-        else {
+        } else {
             Food = "Dinner";
         }
         String RollNo = FUser.getEmail().split("@")[0];
-        String Data = MessId+"\n"+Food+"\n"+RollNo+"\n"+FUser.getDisplayName();
+        String Data = MessId + "\n" + Food + "\n" + RollNo + "\n" + FUser.getDisplayName();
         String EncryptData = "";
-        for(int i=0;i<Data.length();i++){
+        for (int i = 0; i < Data.length(); i++) {
             int c = Data.charAt(i);
-            EncryptData += (char)(c^4);
+            EncryptData += (char) (c ^ 4);
         }
         return EncryptData;
     }
@@ -412,11 +421,11 @@ public class HomeFragment extends Fragment {
             Bitmap bitmap = draw.getBitmap();
 
             File filePath = new File(Environment.getExternalStorageDirectory() + "/CurrentQRCode.jpg");
-            FileOutputStream fileOutputStream= new FileOutputStream(filePath);
+            FileOutputStream fileOutputStream = new FileOutputStream(filePath);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
             fileOutputStream.flush();
             fileOutputStream.close();
-        }catch (WriterException | FileNotFoundException e){
+        } catch (WriterException | FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
@@ -448,7 +457,7 @@ public class HomeFragment extends Fragment {
             for (int x = 0; x < bitMatrixWidth; x++) {
 
                 pixels[offset + x] = bitMatrix.get(x, y) ?
-                        getResources().getColor(R.color.QRCodeBlackColor):getResources().getColor(R.color.QRCodeWhiteColor);
+                        getResources().getColor(R.color.QRCodeBlackColor) : getResources().getColor(R.color.QRCodeWhiteColor);
             }
         }
         Bitmap bitmap = Bitmap.createBitmap(bitMatrixWidth, bitMatrixHeight, Bitmap.Config.ARGB_4444);

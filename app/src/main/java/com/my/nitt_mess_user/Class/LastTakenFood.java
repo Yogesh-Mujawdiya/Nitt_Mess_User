@@ -22,13 +22,13 @@ public class LastTakenFood {
         return type.equals("Breakfast");
     }
     public boolean isLunch(){
-        return type.equals("Breakfast");
+        return type.equals("Lunch");
     }
     public boolean isDinner(){
-        return type.equals("Breakfast");
+        return type.equals("Dinner");
     }
     public boolean isSnack(){
-        return type.equals("Breakfast");
+        return type.equals("Snack");
     }
 
     public void setType(String type) {
@@ -41,7 +41,7 @@ public class LastTakenFood {
 
     public boolean isToday(){
         GregorianCalendar c = new GregorianCalendar();
-        String Today = c.get(Calendar.DAY_OF_MONTH)+"-"+c.get(Calendar.MONTH)+"-"+c.get(Calendar.YEAR);
+        String Today = c.get(Calendar.YEAR)+"/"+c.get(Calendar.MONTH)+"/"+c.get(Calendar.DAY_OF_MONTH);
         return date.equals(Today);
     }
 
