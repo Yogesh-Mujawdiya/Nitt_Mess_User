@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.my.nitt_mess_user.ui.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_feed_back"
+        android:name="com.my.nitt_mess_user.ui.FeedBackFragment"
+        android:label="@string/menu_feed_back"
+        tools:layout="@layout/fragment_user_feed_back" />
+
+    <fragment
+        android:id="@+id/nav_mess_menu"
+        android:name="com.my.nitt_mess_user.ui.MessMenuFragment"
+        android:label="@string/menu_mess_menu"
+        tools:layout="@layout/fragment_user_mess_menu" />
+
+    <fragment
+        android:id="@+id/nav_leave_request"
+        android:name="com.my.nitt_mess_user.ui.LeaveRequestFragment"
+        android:label="@string/menu_leave_request"
+        tools:layout="@layout/fragment_user_leave_request" />
+    <fragment
+        android:id="@+id/nav_leave_request_history"
+        android:name="com.my.nitt_mess_user.ui.LeaveRequestHistoryFragment"
+        android:label="@string/menu_leave_request_history"
+        tools:layout="@layout/fragment_leave_request_history" />
+    <fragment
+        android:id="@+id/nav_guest"
+        android:name="com.my.nitt_mess_user.ui.GenerateGuestQRFragment"
+        android:label="@string/menu_guest"
+        tools:layout="@layout/fragment_generate_guest_q_r" />
+</navigation>

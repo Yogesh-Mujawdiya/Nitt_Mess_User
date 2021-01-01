@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cardView"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    app:cardBackgroundColor="#EAF9FF"
+    app:cardCornerRadius="10dp"
+    android:layout_margin="10dp"
+    android:foreground="?attr/selectableItemBackground"
+    >
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/deleteRequest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        app:cardCornerRadius="2dp"
+        app:cardBackgroundColor="#F44336">
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/ic_baseline_close_24"
+            app:tint="@color/black" />
+    </androidx.cardview.widget.CardView>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
+
+
+        <TextView
+            android:id="@+id/textViewLeaveReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="..."/>
+
+        <TextView
+            android:id="@+id/textViewFrom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textViewLeaveReason"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" To "
+            android:layout_below="@id/textViewLeaveReason"
+            android:layout_centerHorizontal="true"/>
+        <TextView
+            android:id="@+id/textViewTo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/textViewLeaveReason"/>
+
+        <TextView
+            android:id="@+id/textViewUserName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textViewFrom"
+            android:text="Name "
+            android:textStyle="bold"
+            />
+        <TextView
+            android:id="@+id/UserName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textViewFrom"
+            android:layout_alignParentRight="true"
+            android:gravity="right"
+            android:layout_toRightOf="@id/textViewUserName"
+            />
+        <TextView
+            android:id="@+id/textViewUserRollNo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textViewUserName"
+            android:text="Roll No "
+            android:textStyle="bold"
+            />
+        <TextView
+            android:id="@+id/UserRollNo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textViewUserName"
+            android:layout_alignParentRight="true"
+            android:gravity="right"
+            android:layout_toRightOf="@id/textViewUserName"
+            />
+
+        <TextView
+            android:id="@+id/textViewUserMobileNo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textViewUserRollNo"
+            android:text="Mobile No"
+            android:textStyle="bold"
+            />
+        <TextView
+            android:id="@+id/UserMobile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textViewUserRollNo"
+            android:layout_alignParentRight="true"
+            android:gravity="right"
+            android:layout_toRightOf="@id/textViewUserName"
+            />
+
+        <TextView
+            android:id="@+id/textViewLeaveStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/UserMobile"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"/>
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>
