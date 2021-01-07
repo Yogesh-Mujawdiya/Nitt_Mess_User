@@ -1,11 +1,16 @@
 package com.my.nitt_mess_user.ui;
 
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothClass;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,20 +18,30 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -35,8 +50,11 @@ import com.my.nitt_mess_user.Adapter.MessListAdapter;
 import com.my.nitt_mess_user.Class.LastTakenFood;
 import com.my.nitt_mess_user.Class.Mess;
 import com.my.nitt_mess_user.Class.MessMenu;
+import com.my.nitt_mess_user.HomeActivity;
 import com.my.nitt_mess_user.InvalidUserActivity;
+import com.my.nitt_mess_user.LoginActivity;
 import com.my.nitt_mess_user.R;
+import com.my.nitt_mess_user.RegisterActivity;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -50,6 +68,8 @@ import java.util.Dictionary;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.List;
+
+import static android.app.Activity.RESULT_OK;
 
 public class HomeFragment extends Fragment {
 
@@ -68,9 +88,15 @@ public class HomeFragment extends Fragment {
     Calendar calendar;
     ProgressDialog progressDialog;
     Mess MyMess;
-    RelativeLayout layoutAllocatedMess, layoutNotAllocatedMess;
+    Uri FilePath;
+    RelativeLayout layoutAllocatedMess, layoutNotAllocatedMess, layoutFee;
     private boolean IsOnLeave;
     private String Gender;
+    AppCompatButton UploadFee, SelectFile;
+    TextView textView, selectedFile;
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageRef = storage.getReferenceFromUrl("gs://nitt-mess.appspot.com/UserFee");
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -79,6 +105,7 @@ public class HomeFragment extends Fragment {
         FUser = FirebaseAuth.getInstance().getCurrentUser();
         layoutAllocatedMess = root.findViewById(R.id.layoutAllocatedMess);
         layoutNotAllocatedMess = root.findViewById(R.id.layoutNotAllocatedMess);
+        layoutFee = root.findViewById(R.id.layoutNotUploadFee);
         textViewData = root.findViewById(R.id.textViewData);
         recyclerView = root.findViewById(R.id.recyclerViewMessList);
         AllocatedMess = root.findViewById(R.id.AllocatedMess);
@@ -86,6 +113,10 @@ public class HomeFragment extends Fragment {
         TodayMenu = root.findViewById(R.id.textViewMenu);
         submit = root.findViewById(R.id.SubmitButton);
         ImageQRCode = root.findViewById(R.id.ImageQRCode);
+        UploadFee = root.findViewById(R.id.UploadFee);
+        SelectFile = root.findViewById(R.id.SelectFile);
+        textView = root.findViewById(R.id.textView);
+        selectedFile = root.findViewById(R.id.selectedFile);
 
         calendar = Calendar.getInstance();
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
@@ -113,8 +144,158 @@ public class HomeFragment extends Fragment {
                 submitMessInfo();
             }
         });
-        getUserGender();
+
+        SelectFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                intent.setType("application/pdf");
+                startActivityForResult(intent,1212 );
+            }
+        });
+
+        UploadFee.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(FilePath==null){
+                    Toast.makeText(getContext(), "Please select File", Toast.LENGTH_LONG).show();
+                }
+                else{
+                    uploadFile();
+                }
+            }
+        });
+
+        getFeeApprove();
         return root;
+    }
+
+    private void uploadFile() {
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.show();
+        String RollNo = FUser.getEmail().split("@")[0];
+        int Y = Integer.parseInt("20"+RollNo.substring(4,6));
+        Log.d("KKKKKKKKKKKKKKKKKKKKKKK",Y+"");
+        Log.d("KKKKKKKKKKKKKKKKKKKKKKK",calendar.get(Calendar.YEAR)+"");
+        String sam="0";
+        if(calendar.get(Calendar.YEAR)-Y == 0)
+            sam="1";
+        else if(calendar.get(Calendar.YEAR)-Y == 1){
+            if(calendar.get(Calendar.MONTH)<6)
+                sam = "2";
+            else
+                sam = "3";
+        }
+        else if(calendar.get(Calendar.YEAR)-Y == 2){
+            if(calendar.get(Calendar.MONTH)<6)
+                sam = "4";
+            else
+                sam = "5";
+        }
+        else if(calendar.get(Calendar.YEAR)-Y == 3){
+            if(calendar.get(Calendar.MONTH)<6)
+                sam = "6";
+            else
+                sam = "7";
+        }else if(calendar.get(Calendar.YEAR)-Y == 4) {
+            if (calendar.get(Calendar.MONTH) < 6)
+                sam = "8";
+        }
+        String Semester = sam;
+        StorageReference riversRef = storageRef.child(RollNo+"_"+sam+"_Semester"+".pdf");
+        riversRef.putFile(FilePath)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        progressDialog.dismiss();
+                        FirebaseDatabase.getInstance().getReference("Data/User/").child(RollNo).child("Fee").child(Semester).child("File").setValue(RollNo+"_"+Semester+"_Semester"+".pdf");
+                        FirebaseDatabase.getInstance().getReference("Data/User/").child(RollNo).child("Fee").child(Semester).child("Status").setValue("Pending");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        progressDialog.dismiss();
+                        Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                })
+                .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                        double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                        progressDialog.setMessage("Uploading File" + ((int) progress) + "%...");
+                    }
+                });
+    }
+
+    private void getFeeApprove() {
+        String RollNo = FUser.getEmail().split("@")[0];
+        int Y = Integer.parseInt("20"+RollNo.substring(4,6));
+        String sam="0";
+        if(calendar.get(Calendar.YEAR)-Y == 0)
+            sam="1";
+        else if(calendar.get(Calendar.YEAR)-Y == 1){
+            if(calendar.get(Calendar.MONTH)<6)
+                sam = "2";
+            else
+                sam = "3";
+        }
+        else if(calendar.get(Calendar.YEAR)-Y == 2){
+            if(calendar.get(Calendar.MONTH)<6)
+                sam = "4";
+            else
+                sam = "5";
+        }
+        else if(calendar.get(Calendar.YEAR)-Y == 3){
+            if(calendar.get(Calendar.MONTH)<6)
+                sam = "6";
+            else
+                sam = "7";
+        }else if(calendar.get(Calendar.YEAR)-Y == 4) {
+            if (calendar.get(Calendar.MONTH) < 6)
+                sam = "8";
+        }
+        if(sam!="0") {
+            DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("Data/User").child(RollNo).child("Fee").child(sam);
+            mDatabase.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    layoutFee.setVisibility(View.VISIBLE);
+                    if (dataSnapshot.exists()) {
+                        Log.d("KKKKKKKKKK",dataSnapshot.getValue().toString());
+                        if(dataSnapshot.hasChild("Status")) {
+                            if (dataSnapshot.child("Status").getValue(String.class).equals("Accept")) {
+                                getUserGender();
+                                layoutFee.setVisibility(View.GONE);
+                            } else if (dataSnapshot.child("Status").getValue(String.class).equals("Pending")) {
+                                textView.setText("File Uploaded But Not Approve Yet");
+                                UploadFee.setVisibility(View.GONE);
+                                selectedFile.setVisibility(View.GONE);
+                                SelectFile.setVisibility(View.GONE);
+                            } else {
+                                textView.setText("File Not Approve");
+                                UploadFee.setVisibility(View.VISIBLE);
+                                selectedFile.setVisibility(View.VISIBLE);
+                                SelectFile.setVisibility(View.VISIBLE);
+                                UploadFee.setText("ReUpload File");
+                            }
+                        }
+                    } else {
+                        UploadFee.setVisibility(View.VISIBLE);
+                        selectedFile.setVisibility(View.VISIBLE);
+                        SelectFile.setVisibility(View.VISIBLE);
+                        textView.setVisibility(View.VISIBLE);
+                        textView.setText("Need to Upload Fee Receipt");
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
     }
 
     private void submitMessInfo() {
@@ -420,7 +601,15 @@ public class HomeFragment extends Fragment {
             BitmapDrawable draw = (BitmapDrawable) ImageQRCode.getDrawable();
             Bitmap bitmap = draw.getBitmap();
 
-            File filePath = new File(Environment.getExternalStorageDirectory() + "/CurrentQRCode.jpg");
+            Environment.getExternalStorageState();
+            File pictureFileDir = new File(Environment.getExternalStorageDirectory(), "NITT");
+            if (!pictureFileDir.exists()) {
+                boolean isDirectoryCreated = pictureFileDir.mkdirs();
+                if (!isDirectoryCreated)
+                    return;
+            }
+            String filename = pictureFileDir.getPath() + "/" + "Current_QR_Code.jpg";
+            File filePath = new File(filename);
             FileOutputStream fileOutputStream = new FileOutputStream(filePath);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
             fileOutputStream.flush();
@@ -484,4 +673,36 @@ public class HomeFragment extends Fragment {
     };
 
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        switch (requestCode) {
+            case 1212:
+                if (resultCode == RESULT_OK) {
+                    // Get the Uri of the selected file
+                    FilePath = data.getData();
+                    Log.d("DDDDDDDd",FilePath.toString());
+                    String uriString = FilePath.toString();
+                    File myFile = new File(uriString);
+                    String path = myFile.getAbsolutePath();
+                    String displayName = null;
+
+                    if (uriString.startsWith("content://")) {
+                        Cursor cursor = null;
+                        try {
+                            cursor = getActivity().getContentResolver().query(FilePath, null, null, null, null);
+                            if (cursor != null && cursor.moveToFirst()) {
+                                displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                            }
+                        } finally {
+                            cursor.close();
+                        }
+                    } else if (uriString.startsWith("file://")) {
+                        displayName = myFile.getName();
+                    }
+                    selectedFile.setText(displayName);
+                }
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }

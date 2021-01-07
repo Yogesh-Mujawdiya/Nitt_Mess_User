@@ -77,9 +77,9 @@
         android:id="@+id/layoutNotAllocatedMess"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
         android:layout_below="@id/layoutAllocatedMess"
         android:gravity="center"
+        android:visibility="gone"
         android:orientation="vertical">
 
 
@@ -106,6 +106,68 @@
             android:layout_centerHorizontal="true"
             android:textStyle="bold"
             android:text="Submit"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layoutNotUploadFee"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layoutAllocatedMess"
+        android:gravity="center"
+        android:padding="20dp"
+        android:background="#FFF"
+        android:orientation="vertical">
+
+
+        <TextView
+            android:id="@+id/selectedFile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="15dp"
+            android:layout_toLeftOf="@id/SelectFile"
+            android:maxLines="1"
+            android:text="Select File"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/SelectFile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/capsule"
+            android:backgroundTint="#009688"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_alignParentEnd="true"
+            android:padding="10dp"
+            android:text="Select PDF"/>
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:text="Not Uploaded Yet"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/UploadFee"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/capsule"
+            android:layout_marginBottom="25dp"
+            android:textColor="#FFF"
+            android:textSize="25dp"
+            android:textAllCaps="false"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:textStyle="bold"
+            android:drawableStart="@drawable/ic_baseline_cloud_upload_24"
+            android:drawableTint="@color/white"
+            android:drawablePadding="25dp"
+            android:paddingStart="25dp"
+            android:paddingEnd="25dp"
+            android:text="Upload PDF"/>
     </RelativeLayout>
 
 

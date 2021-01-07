@@ -130,7 +130,7 @@ public class GenerateGuestQRFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()) {
                     MessId = dataSnapshot.getValue().toString();
-                    reference = FirebaseDatabase.getInstance().getReference("GuestQR").child(MessId).child(key).push();
+                    reference = FirebaseDatabase.getInstance().getReference("Data/GuestQR").child(MessId).child(key).push();
                 }
                 else {
                     Toast.makeText(getContext(),"No Mess Allocated", Toast.LENGTH_LONG);
@@ -267,24 +267,7 @@ public class GenerateGuestQRFragment extends Fragment {
             textViewGuestName.setText(GuestName.getText().toString());
             reference.child("GenerateBy").setValue(RollNo);
             reference.child("Name").setValue(GuestName.getText().toString());
-            String key = Year+"/"+Month+"/"+Day;
-            FirebaseDatabase.getInstance().getReference("Data/Guest").child(MessId).child(key).child(RollNo)
-                    .runTransaction(new Transaction.Handler() {
-                        @NonNull
-                        @Override
-                        public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-                            if(currentData.getValue(Integer.class)!=null)
-                                currentData.setValue(currentData.getValue(Integer.class)+1);
-                            else
-                                currentData.setValue(1);
-                            return Transaction.success(currentData);
-                        }
 
-                        @Override
-                        public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
-
-                        }
-                    });
         } catch (WriterException e) {
             e.printStackTrace();
         }
